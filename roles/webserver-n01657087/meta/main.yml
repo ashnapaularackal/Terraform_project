@@ -1,0 +1,9 @@
+# roles/webserver-n01657087/meta/main.yml
+---
+galaxy_info:
+  author: Your Name
+  description: Role to configure Apache web server
+  license: MIT
+  min_ansible_version: 2.9
+
+dependencies: []

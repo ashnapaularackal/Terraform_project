@@ -1,0 +1,9 @@
+# roles/user-n01657087/meta/main.yml
+---
+galaxy_info:
+  author: ashna_paul
+  description: Role to create users and groups
+  license: MIT
+  min_ansible_version: 2.9
+
+dependencies: []

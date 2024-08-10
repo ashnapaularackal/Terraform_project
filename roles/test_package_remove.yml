@@ -1,0 +1,5 @@
+---
+- name: Test package_remove role
+  hosts: n01657087-c-vm1.canadaeast.cloudapp.azure.com
+  roles:
+    - package_remove

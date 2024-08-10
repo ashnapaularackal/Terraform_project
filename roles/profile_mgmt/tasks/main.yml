@@ -1,0 +1,32 @@
+---
+- name: Create empty file locfile on automation machine
+  local_action:
+    module: file
+    path: "{{ locfile_path }}"
+    state: touch
+  become: no
+
+- name: Copy locfile to managed node
+  copy:
+    src: "{{ locfile_path }}"
+    dest: "{{ locfile_dest }}"
+    owner: "{{ locfile_owner }}"
+    group: "{{ locfile_group }}"
+    mode: "{{ locfile_mode }}"
+
+- name: Display status of /tmp/locfile
+  stat:
+    path: "{{ locfile_dest }}"
+  register: file_status
+
+- name: Show file status
+  debug:
+    var: file_status
+
+- name: Create empty file emptyfile in home directory
+  file:
+    path: "{{ emptyfile_path }}"
+    state: touch
+    owner: "{{ ansible_user | default(default_user) }}"
+    group: "{{ ansible_user | default(default_user) }}"
+

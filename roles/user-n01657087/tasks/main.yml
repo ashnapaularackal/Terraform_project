@@ -1,0 +1,48 @@
+---
+- name: Create cloudadmins group
+  group:
+    name: cloudadmins
+    state: present
+
+- name: Create user accounts and add to groups
+  user:
+    name: "{{ item }}"
+    groups: cloudadmins,wheel
+    append: yes
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: ".ssh/id_rsa"
+  loop:
+    - user100
+    - user200
+    - user300
+
+- name: Ensure .ssh directory exists
+  file:
+    path: "/home/{{ item }}/.ssh"
+    state: directory
+    mode: '0700'
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  loop:
+    - user100
+    - user200
+    - user300
+
+- name: Set permissions on private keys
+  file:
+    path: "/home/{{ item }}/.ssh/id_rsa"
+    mode: '0600'
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  loop:
+    - user100
+    - user200
+    - user300
+
+- name: Fetch user100's private key
+  fetch:
+    src: "/home/user100/.ssh/id_rsa"
+    dest: "./user100_private_key"
+    flat: yes
+  when: inventory_hostname == groups['all'][0]

@@ -1,0 +1,8 @@
+# roles/user-n01657087/defaults/main.yml
+---
+users:
+  - user100
+  - user200
+  - user300
+group_name: cloudadmins
+additional_group: wheel

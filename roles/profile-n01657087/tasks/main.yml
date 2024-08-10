@@ -1,0 +1,15 @@
+# roles/profile-n01657087/tasks/main.yml
+---
+- name: Ensure /etc/profile exists
+  file:
+    path: /etc/profile
+    state: touch
+
+- name: Append lines to /etc/profile
+  lineinfile:
+    path: /etc/profile
+    line: "{{ item }}"
+    create: yes
+  with_items:
+    - "#Test block added by Ansible...N01657087"
+    - "export TMOUT=1500"

@@ -1,0 +1,5 @@
+# roles/webserver-n01657087/defaults/main.yml
+---
+apache_package: apache2
+apache_service: apache2
+web_root: /var/www/html

@@ -1,0 +1,7 @@
+---
+- name: Install specified packages
+  package:
+    name: "{{ packages_to_install }}"
+    state: present
+  when: ansible_os_family == "RedHat"
+

@@ -1,0 +1,16 @@
+---
+- name: Update all packages
+  yum:
+    name: '*'
+    state: latest
+  when: ansible_os_family == "RedHat"
+  notify: Reboot system
+
+- name: Check if reboot is required
+  command: needs-restarting -r
+  register: reboot_required
+  failed_when: false
+  changed_when: reboot_required.rc == 1
+  when: ansible_os_family == "RedHat"
+  notify: Reboot system
+

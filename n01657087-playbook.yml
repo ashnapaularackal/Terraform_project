@@ -1,0 +1,11 @@
+# n01657087-playbook.yml
+---
+- name: Apply all roles
+  hosts: all
+  become: yes
+  roles:
+    - profile-n01657087
+    - user-n01657087
+    - datadisk-n01657087
+    - webserver-n01657087
+

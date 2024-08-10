@@ -1,0 +1,85 @@
+---
+- name: Get list of available disks
+  command: lsblk -ndo NAME,SIZE,TYPE
+  register: available_disks
+
+- name: Set fact for data disk
+  set_fact:
+    data_disk: "/dev/{{ (available_disks.stdout_lines | select('match', '^sd.* disk$') | list | sort | last).split()[0] }}"
+
+- name: Debug data_disk variable
+  debug:
+    var: data_disk
+
+- name: Pause for disk initialization
+  pause:
+    seconds: 100
+
+- name: Wait for disk to appear
+  wait_for:
+    path: "{{ data_disk }}"
+    state: present
+    timeout: 1500
+
+- name: Check if disk is already partitioned
+  command: "parted -s {{ data_disk }} print"
+  register: parted_info
+  ignore_errors: yes
+
+- name: Create GPT partition table
+  command: "parted -s {{ data_disk }} mklabel gpt"
+  when: parted_info.rc != 0 or 'unrecognised disk label' in parted_info.stderr
+
+- name: Create first partition
+  command: "parted -s {{ data_disk }} mkpart primary 0% 4GiB"
+  when: parted_info.rc != 0 or 'unrecognised disk label' in parted_info.stderr
+
+- name: Create second partition
+  command: "parted -s {{ data_disk }} mkpart primary 4GiB 100%"
+  when: parted_info.rc != 0 or 'unrecognised disk label' in parted_info.stderr
+
+- name: Wait for partitions to be available
+  wait_for:
+    path: "{{ item }}"
+    state: present
+    timeout: 1500
+  loop:
+    - "{{ data_disk }}1"
+    - "{{ data_disk }}2"
+
+- name: Create XFS filesystem on first partition
+  filesystem:
+    fstype: xfs
+    dev: "{{ data_disk }}1"
+
+- name: Create EXT4 filesystem on second partition
+  filesystem:
+    fstype: ext4
+    dev: "{{ data_disk }}2"
+    force: yes
+
+- name: Create mount points
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - /part1
+    - /part2
+
+- name: Mount partitions
+  mount:
+    path: "{{ item.path }}"
+    src: "{{ data_disk }}{{ item.number }}"
+    fstype: "{{ item.fstype }}"
+    state: mounted
+  loop:
+    - { path: '/part1', number: '1', fstype: 'xfs' }
+    - { path: '/part2', number: '2', fstype: 'ext4' }
+
+- name: Display final partition table
+  command: "parted -s {{ data_disk }} print"
+  register: final_partition_table
+
+- name: Show final partition table
+  debug:
+    var: final_partition_table.stdout_lines

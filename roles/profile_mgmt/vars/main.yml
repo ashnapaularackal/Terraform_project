@@ -1,0 +1,9 @@
+---
+default_user: "n01657087"  
+locfile_path: "{{ playbook_dir }}/locfile"
+locfile_dest: /tmp/locfile
+locfile_owner: "{{ ansible_user | default(default_user) }}"
+locfile_group: root
+locfile_mode: '0444'
+emptyfile_path: "/home/{{ ansible_user | default(default_user) }}/emptyfile"
+
